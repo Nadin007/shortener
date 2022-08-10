@@ -2,9 +2,9 @@ import random
 import string
 from urllib.parse import urlparse
 from backend.config import HOST_NAME
-from datetime import datetime as dt
+from datetime import timedelta, datetime as dt
 
-from flask import Blueprint, Response, request, redirect
+from flask import Blueprint, Response, request, redirect, jsonify
 
 from backend import db
 from backend.models import URLModel
@@ -53,3 +53,14 @@ def cut():
             return Response(new_url, status=200)
         except Exception:
             pass
+
+
+@second.route("/clean", methods=['DELETE'])
+def delete_old_links():
+    current_day = dt.utcnow()
+    earliest_date = current_day - timedelta(days=100)
+    result = URLModel.query.filter(URLModel.date < earliest_date)
+    old_links = [x.serialize for x in result]
+    result.delete()
+    db.session.commit()
+    return jsonify(old_links), 200

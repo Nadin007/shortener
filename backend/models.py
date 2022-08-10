@@ -12,3 +12,13 @@ class URLModel(db.Model):
 
     def __repr__(self) -> str:
         return f"URLs('{self.original_url}', '{self.shortened_url}' '{self.date}')"
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'original_url': self.original_url,
+            'shortened_url': self.shortened_url,
+            'counter': self.counter,
+            'date': self.date.isoformat()
+        }
